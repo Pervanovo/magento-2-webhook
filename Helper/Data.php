@@ -36,6 +36,7 @@ use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Variable\Model\VariableFactory;
 use Mageplaza\Core\Helper\AbstractData as CoreHelper;
 use Mageplaza\Webhook\Block\Adminhtml\LiquidFilters;
 use Mageplaza\Webhook\Model\Config\Source\Authentication;
@@ -59,6 +60,11 @@ class Data extends CoreHelper
      * @var LiquidFilters
      */
     protected $liquidFilters;
+
+    /**
+     * @var VariableFactory
+     */
+    protected $variableFactory;
 
     /**
      * @var CurlFactory
@@ -103,6 +109,7 @@ class Data extends CoreHelper
      * @param HookFactory $hookFactory
      * @param HistoryFactory $historyFactory
      * @param CustomerRepositoryInterface $customer
+     * @param \Magento\Variable\Model\VariableFactory $variableFactory
      */
     public function __construct(
         Context $context,
@@ -114,7 +121,8 @@ class Data extends CoreHelper
         LiquidFilters $liquidFilters,
         HookFactory $hookFactory,
         HistoryFactory $historyFactory,
-        CustomerRepositoryInterface $customer
+        CustomerRepositoryInterface $customer,
+        VariableFactory $variableFactory
     ) {
         $this->liquidFilters    = $liquidFilters;
         $this->curlFactory      = $curlFactory;
@@ -123,6 +131,7 @@ class Data extends CoreHelper
         $this->transportBuilder = $transportBuilder;
         $this->backendUrl       = $backendUrl;
         $this->customer         = $customer;
+        $this->variableFactory  = $variableFactory;
 
         parent::__construct($context, $objectManager, $storeManager);
     }
@@ -247,6 +256,13 @@ class Data extends CoreHelper
 
         $body        = $log ? $log->getBody() : $this->generateLiquidTemplate($item, $hook->getBody());
         $headers     = $hook->getHeaders();
+        if ($headers && !is_array($headers)) {
+          $headers = $this::jsonDecode($headers);
+        }
+        foreach ($headers as &$header) {
+          $header['name'] = $this->generateLiquidTemplate($item, $header['name']);
+          $header['value'] = $this->generateLiquidTemplate($item, $header['value']);
+        }
         $contentType = $hook->getContentType();
 
         return $this->sendHttpRequest($headers, $authentication, $contentType, $url, $body, $method);
@@ -279,8 +295,19 @@ class Data extends CoreHelper
                 $item->setData('billingAddress', $item->getBillingAddress());
             }
 
+            $customVariablesOptions = $this->variableFactory->create()->getVariablesOptionArray(false);
+            $custom = [];
+            foreach ($customVariablesOptions as $customVariable) {
+              $code = $customVariable['label']->render();
+              $value = $this->variableFactory->create()
+                ->setStoreId($this->getStoreId() ?: "base")
+                ->loadByCode($code)->getValue('text');
+              $custom[$code] = $value;
+            }
+
             return $template->render([
                 'item' => $item,
+                'custom' => $custom
             ]);
         } catch (Exception $e) {
             $this->_logger->critical($e->getMessage());
@@ -303,9 +330,6 @@ class Data extends CoreHelper
     {
         if (!$method) {
             $method = 'GET';
-        }
-        if ($headers && !is_array($headers)) {
-            $headers = $this::jsonDecode($headers);
         }
         $headersConfig = [];
 

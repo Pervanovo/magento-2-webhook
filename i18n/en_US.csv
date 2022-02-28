@@ -2,6 +2,7 @@
 Actions,Actions
 "Payload URL","Payload URL"
 "You can insert a variable","You can insert a variable"
+"You can insert variables in both Name and Value","You can insert variables in both Name and Value"
 "Insert Variable","Insert Variable"
 Method,Method
 Authentication,Authentication

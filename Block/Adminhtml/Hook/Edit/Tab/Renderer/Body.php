@@ -38,6 +38,7 @@ use Magento\Sales\Model\ResourceModel\Order\Creditmemo as CreditmemoResource;
 use Magento\Sales\Model\ResourceModel\Order\Invoice as InvoiceResource;
 use Magento\Sales\Model\ResourceModel\Order\Shipment as ShipmentResource;
 use Magento\Sales\Model\ResourceModel\Order\Status\History as OrderStatusResource;
+use Magento\Variable\Model\VariableFactory;
 use Mageplaza\Webhook\Block\Adminhtml\LiquidFilters;
 use Mageplaza\Webhook\Model\Config\Source\HookType;
 use Mageplaza\Webhook\Model\HookFactory;
@@ -62,6 +63,11 @@ class Body extends Element
      * @var LiquidFilters
      */
     protected $liquidFilters;
+
+    /**
+     * @var VariableFactory
+     */
+    protected $variableFactory;
 
     /**
      * @var InvoiceResource
@@ -135,6 +141,7 @@ class Body extends Element
      * @param HookFactory $hookFactory
      * @param Subscriber $subscriber
      * @param Address $addressResource
+     * @param VariableFactory $variableFactory
      * @param array $data
      */
     public function __construct(
@@ -152,6 +159,7 @@ class Body extends Element
         HookFactory $hookFactory,
         Subscriber $subscriber,
         Address $addressResource,
+        VariableFactory $variableFactory,
         array $data = []
     ) {
         $this->liquidFilters       = $liquidFilters;
@@ -167,6 +175,7 @@ class Body extends Element
         $this->quoteResource       = $quoteResource;
         $this->subscriber          = $subscriber;
         $this->addressResource     = $addressResource;
+        $this->variableFactory     = $variableFactory;
 
         parent::__construct($context, $data);
     }
@@ -327,4 +336,17 @@ class Body extends Element
 
         return $attrCollection;
     }
+
+  /**
+   * @return array
+   */
+  public function getCustomVariablesCodes()
+  {
+    $customVariablesOptions = $this->variableFactory->create()->getVariablesOptionArray(false);
+    $customVariables = [];
+    foreach ($customVariablesOptions as $customVariable) {
+      $customVariables[] = $customVariable['label']->render();
+    }
+    return $customVariables;
+  }
 }

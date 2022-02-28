@@ -102,6 +102,33 @@ $modifiersData      = $block->getModifier() ? Data::jsonEncode($block->getModifi
     });
 </script>
 <div id="insert-variable-popup" class="admin__scope-old">
+    <div class="section-config">
+        <div class="entry-edit-head admin__collapsible-block">
+            <span id="ox_variable_custom_variable-link" class="entry-edit-head-link"></span>
+            <a id="ox_variable_custom_variable-head" href="#ox_variable_custom_variable-link"
+               onclick="Fieldset.toggleCollapse('ox_variable_custom_variable'); return false;">
+              <?= $block->escapeHtml(__('Custom variables')) ?>
+            </a>
+        </div>
+        <input id="ox_variable_custom_variable-state" value="1" type="hidden">
+
+        <fieldset class="config admin__collapsible-block admin__scope-old" id="ox_variable_custom_variable">
+          <?php foreach ($block->getCustomVariablesCodes() as $customVariableCode) : ?>
+            <?php /** @var string $customVariableCode */ ?>
+              <div class="attr-code" id="<?= $block->escapeHtmlAttr($customVariableCode) ?>" code="<?= $customVariableCode ?>">
+                  <div class="row">
+                      <label class="attr-code-label"><?= $block->escapeHtml($customVariableCode) ?></label>
+                      <button class="insert"><?= $block->escapeHtml(__('Add')) ?></button>
+                      <button class="add-modifier"><?= $block->escapeHtml(__('Add Filter')) ?></button>
+                      <label class="liquid-variable">{{ <?= 'custom.' . $customVariableCode ?> }}</label>
+                  </div>
+                  <div class="row-modifier data-table">
+                      <div class="modifier-group" code="<?= $block->escapeHtmlAttr($customVariableCode) ?>"></div>
+                  </div>
+              </div>
+          <?php endforeach; ?>
+        </fieldset>
+    </div>
     <?php $attrCollection = $block->getHookAttrCollection() ?: []; ?>
     <div class="section-config">
         <div class="entry-edit-head admin__collapsible-block">
@@ -188,6 +215,7 @@ $modifiersData      = $block->getModifier() ? Data::jsonEncode($block->getModifi
         require(['prototype'], function () {
             Fieldset.applyCollapse('ox_variable_item');
             Fieldset.applyCollapse('ox_variable_shipping_address');
+            Fieldset.applyCollapse('ox_variable_custom_variable');
         });
         //]]>
     </script>

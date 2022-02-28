@@ -187,6 +187,7 @@ class Actions extends Generic implements TabInterface
             'name' => 'headers',
             'label' => __('Header'),
             'title' => __('Header'),
+            'note' => __('You can insert variables in both Name and Value'),
         ])->setRenderer($rendererBlock);
         $fieldset->addField('content_type', 'select', [
             'name' => 'content_type',
