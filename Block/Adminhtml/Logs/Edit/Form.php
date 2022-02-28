@@ -113,6 +113,13 @@ class Form extends Generic
             'readonly' => true
         ]);
 
+      $fieldset->addField('payload_url', 'label', [
+        'name' => 'payload_url',
+        'label' => __('Request URL'),
+        'title' => __('Request URL'),
+        'readonly' => true
+      ]);
+
         $fieldset->addField('body', 'textarea', [
             'name' => 'body',
             'label' => __('Request Body'),
