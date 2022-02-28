@@ -109,7 +109,7 @@ class Data extends CoreHelper
      * @param HookFactory $hookFactory
      * @param HistoryFactory $historyFactory
      * @param CustomerRepositoryInterface $customer
-     * @param \Magento\Variable\Model\VariableFactory $variableFactory
+     * @param VariableFactory $variableFactory
      */
     public function __construct(
         Context $context,
@@ -283,16 +283,20 @@ class Data extends CoreHelper
             $template->registerFilter($this->liquidFilters);
             $template->parse($templateHtml, $filtersMethods);
 
-            if ($item instanceof Product) {
-                $item->setStockItem(null);
-            }
+            if ($item) {
+              if ($item instanceof Product) {
+                  $item->setStockItem(null);
+              }
 
-            if ($item->getShippingAddress()) {
-                $item->setData('shippingAddress', $item->getShippingAddress()->getData());
-            }
+              if ($item->getShippingAddress()) {
+                  $item->setData('shippingAddress', $item->getShippingAddress()->getData());
+              }
 
-            if ($item->getBillingAddress()) {
-                $item->setData('billingAddress', $item->getBillingAddress());
+              if ($item->getBillingAddress()) {
+                  $item->setData('billingAddress', $item->getBillingAddress());
+              }
+            } else {
+              $item = [];
             }
 
             $customVariablesOptions = $this->variableFactory->create()->getVariablesOptionArray(false);
