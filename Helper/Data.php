@@ -36,7 +36,8 @@ use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Variable\Model\VariableFactory;
+use Magento\Variable\Model\ResourceModel\Variable\CollectionFactory as VariableFactory;
+use Magento\Variable\Model\Variable;
 use Mageplaza\Core\Helper\AbstractData as CoreHelper;
 use Mageplaza\Webhook\Block\Adminhtml\LiquidFilters;
 use Mageplaza\Webhook\Model\Config\Source\Authentication;
@@ -299,14 +300,12 @@ class Data extends CoreHelper
               $item = [];
             }
 
-            $customVariablesOptions = $this->variableFactory->create()->getVariablesOptionArray(false);
+            $customVariables = $this->variableFactory->create()->getItems();
             $custom = [];
-            foreach ($customVariablesOptions as $customVariable) {
-              $code = $customVariable['label']->render();
-              $value = $this->variableFactory->create()
-                ->setStoreId($this->getStoreId() ?: "base")
-                ->loadByCode($code)->getValue('text');
-              $custom[$code] = $value;
+            /** @var Variable $customVariable */
+            foreach ($customVariables as $customVariable) {
+              $code = $customVariable->getCode();
+              $custom[$code] = $customVariable->setStoreId($this->getStoreId())->loadByCode($code)->getValue(Variable::TYPE_TEXT);
             }
 
             return $template->render([
