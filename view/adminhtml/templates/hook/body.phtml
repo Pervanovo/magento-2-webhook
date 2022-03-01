@@ -113,17 +113,16 @@ $modifiersData      = $block->getModifier() ? Data::jsonEncode($block->getModifi
         <input id="ox_variable_custom_variable-state" value="1" type="hidden">
 
         <fieldset class="config admin__collapsible-block admin__scope-old" id="ox_variable_custom_variable">
-          <?php foreach ($block->getCustomVariablesCodes() as $customVariableCode) : ?>
-            <?php /** @var string $customVariableCode */ ?>
-              <div class="attr-code" id="<?= $block->escapeHtmlAttr($customVariableCode) ?>" code="<?= $customVariableCode ?>">
+          <?php foreach ($block->getCustomVariables() as $customVariable) : ?>
+              <div class="attr-code" id="<?= $block->escapeHtmlAttr($customVariable['code']) ?>" code="<?= $customVariable['code'] ?>">
                   <div class="row">
-                      <label class="attr-code-label"><?= $block->escapeHtml($customVariableCode) ?></label>
+                      <label class="attr-code-label"><?= $block->escapeHtml($customVariable['name']) ?> (<?= $block->escapeHtml($customVariable['code']) ?>)</label>
                       <button class="insert"><?= $block->escapeHtml(__('Add')) ?></button>
                       <button class="add-modifier"><?= $block->escapeHtml(__('Add Filter')) ?></button>
-                      <label class="liquid-variable">{{ <?= 'custom.' . $customVariableCode ?> }}</label>
+                      <label class="liquid-variable">{{ <?= 'custom.' . $customVariable['code'] ?> }}</label>
                   </div>
                   <div class="row-modifier data-table">
-                      <div class="modifier-group" code="<?= $block->escapeHtmlAttr($customVariableCode) ?>"></div>
+                      <div class="modifier-group" code="<?= $block->escapeHtmlAttr($customVariable['code']) ?>"></div>
                   </div>
               </div>
           <?php endforeach; ?>

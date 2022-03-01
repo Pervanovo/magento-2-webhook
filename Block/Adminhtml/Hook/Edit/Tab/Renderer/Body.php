@@ -340,13 +340,8 @@ class Body extends Element
   /**
    * @return array
    */
-  public function getCustomVariablesCodes()
+  public function getCustomVariables()
   {
-    $customVariablesOptions = $this->variableFactory->create()->getVariablesOptionArray(false);
-    $customVariables = [];
-    foreach ($customVariablesOptions as $customVariable) {
-      $customVariables[] = $customVariable['label']->render();
-    }
-    return $customVariables;
+        return $this->variableFactory->create()->getCollection()->getData();
   }
 }
